@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Santa's Scratch Card Challenge</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="snow" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="25" cy="25" r="2" fill="white" opacity="0.7"/></pattern></defs><rect width="100%" height="100%" fill="url(%23snow)"/></svg>');
+        }
+
+        .container {
+            background: rgba(231, 76, 60, 0.9);
+            border-radius: 30px;
+            padding: 40px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 10px solid gold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #scratch-card {
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            cursor: pointer;
+        }
+
+        #scratch-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            z-index: 10;
+        }
+
+        #scratch-reveal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 5;
+        }
+
+        .flag-input {
+            margin: 15px 0;
+            padding: 10px;
+            width: 100%;
+            border: 3px solid green;
+            border-radius: 15px;
+        }
+
+        .submit-btn {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        #progress {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+
+        .progress-step.active {
+            background-color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="christmas-music" src="santa.mp3"></audio>
+    <div id="confetti-container"></div>
+    <div class="container">
+        <h1 style="color: white;">🎄 Santa's Secret Scratch Challenge 🎁</h1>
+
+        <div id="progress">
+            <div class="progress-step" id="step1"></div>
+            <div class="progress-step" id="step2"></div>
+            <div class="progress-step" id="step3"></div>
+        </div>
+
+        <div id="clue-section">
+            <p style="color: white; font-style: italic;">First Clue: Santa's Favorite Tech Word...</p>
+        </div>
+
+        <input type="text" class="flag-input" id="flag-input" placeholder="Enter Santa's Secret Code">
+        <button class="submit-btn" onclick="checkFlag()">Unlock Hint</button>
+
+
+
+        <div id="scratch-card">
+            <div id="scratch-overlay"></div>
+            <div id="scratch-reveal">
+                <h2>₹5000 Flipkart Gift Card</h2>
+                <p>Scratch to Reveal!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Secure flag verification system
+        (function () {
+            // Completely remove direct flag references
+            const s = (a, b) => {
+                const c = btoa(a + b);
+                return c.split('').map(d =>
+                    String.fromCharCode(d.charCodeAt(0) ^ 0x55)
+                ).join('');
+            };
+
+            const v = (i, u) => {
+    const x = u.split('').map(d =>
+        String.fromCharCode(d.charCodeAt(0) ^ 0x55)
+    ).join('');
+    return atob(x) === i; // Ensure exact match
+};
+
+            let h = [
+                s('C', 'ODE'),
+                s('HA', 'CK'),
+                s('TE', 'CH')
+            ];
+
+            let currentLevel = 0;
+            let scratchCard, scratchOverlay, scratchCanvas;
+
+            window.onload = function () {
+                scratchCard = document.getElementById('scratch-card');
+                scratchOverlay = document.getElementById('scratch-overlay');
+
+                // Create canvas for scratching
+                scratchCanvas = document.createElement('canvas');
+                scratchCanvas.width = scratchCard.offsetWidth;
+                scratchCanvas.height = scratchCard.offsetHeight;
+                scratchCanvas.style.position = 'absolute';
+                scratchCanvas.style.top = '0';
+                scratchCanvas.style.left = '0';
+                scratchCanvas.style.zIndex = '15';
+                scratchCard.appendChild(scratchCanvas);
+
+                const ctx = scratchCanvas.getContext('2d');
+                ctx.fillStyle = 'green';
+                ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+
+                scratchCard.addEventListener('mousemove', scratch);
+                scratchCard.addEventListener('touchmove', scratch);
+            }
+
+            function scratch(e) {
+                if (currentLevel < 3) return;
+
+                e.preventDefault();
+                const rect = scratchCard.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+                const ctx = scratchCanvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                const imageData = ctx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
+                const transparency = calculateTransparency(imageData);
+
+                if (transparency > 0.5) {
+                    scratchOverlay.style.opacity = 0;
+                }
+            }
+
+            function calculateTransparency(imageData) {
+                let transparentPixels = 0;
+                for (let i = 3; i < imageData.data.length; i += 4) {
+                    if (imageData.data[i] === 0) transparentPixels++;
+                }
+                return transparentPixels / (imageData.data.length / 4);
+            }
+
+            window.checkFlag = function () {
+                const input = document.getElementById('flag-input');
+                const clueSection = document.getElementById('clue-section');
+
+                if (v(input.value.toUpperCase(), h[currentLevel])) {
+                    document.getElementById(`step${currentLevel + 1}`).classList.add('active');
+                    currentLevel++;
+
+                    const clues = [
+                        'Next Clue: Programmers\' Magic Word...',
+                        'Final Clue: Innovator\'s Secret Charm!',
+                        'Santa\'s Gift Unlocked! 🎄'
+                    ];
+
+                    if (currentLevel < 3) {
+                        clueSection.innerHTML = `<p style="color: white; font-style: italic;">${clues[currentLevel]}</p>`;
+                    } else {
+                        revealScratchCard();
+                    }
+
+                    input.value = '';
+                } else {
+                    alert('Incorrect Santa Code! Try again.');
+                }
+            }
+
+            function revealScratchCard() {
+                const scratchReveal = document.getElementById('scratch-reveal');
+                scratchReveal.innerHTML = `
+        <h2>₹5000 Flipkart Gift Card</h2>
+        <p>Scratch to Reveal Your Gift!</p>
+        <div style="font-size: 12px; color: yellow;">
+            Gift Card Code: XMAS2023-SANTA-5000
+        </div>
+    `;
+
+                // Play music
+                const music = document.getElementById('christmas-music');
+                music.play();
+
+                // Trigger confetti
+                launchConfetti();
+            }
+
+            function launchConfetti() {
+                const confettiContainer = document.getElementById('confetti-container');
+                confettiContainer.style.position = 'fixed';
+                confettiContainer.style.top = 0;
+                confettiContainer.style.left = 0;
+                confettiContainer.style.width = '100%';
+                confettiContainer.style.height = '100%';
+                confettiContainer.style.pointerEvents = 'none';
+                confettiContainer.style.zIndex = 9999;
+
+                const confettiCount = 200;
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'absolute';
+                    confetti.style.width = `${Math.random() * 10 + 5}px`;
+                    confetti.style.height = `${Math.random() * 10 + 5}px`;
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = `${Math.random() * 100}%`;
+                    confetti.style.opacity = Math.random();
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s ease-in-out infinite`;
+                    confettiContainer.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000); // Remove confetti after 3 seconds
+                }
+            }
+
+            // Add keyframe animations for confetti
+            const confettiStyle = document.createElement('style');
+            confettiStyle.innerHTML = `
+    @keyframes confetti-fall {
+        from {
+            transform: translateY(0) rotate(0deg);
+        }
+        to {
+            transform: translateY(100vh) rotate(360deg);
+        }
+    }
+`;
+            document.head.appendChild(confettiStyle);
+
+        })();
+    </script>
+</body>
+
+</html>
