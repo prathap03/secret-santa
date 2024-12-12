@@ -110,10 +110,12 @@
             <div class="progress-step" id="step1"></div>
             <div class="progress-step" id="step2"></div>
             <div class="progress-step" id="step3"></div>
+            <div class="progress-step" id="step4"></div>
+            <div class="progress-step" id="step5"></div>
         </div>
 
         <div id="clue-section">
-            <p style="color: white; font-style: italic;">First Clue: Santa's Favorite Tech Word...</p>
+            <p style="color: white; font-style: italic;">First Clue: The First Gift Something Important...</p>
         </div>
 
         <input type="text" class="flag-input" id="flag-input" placeholder="Enter Santa's Secret Code">
@@ -124,7 +126,7 @@
         <div id="scratch-card">
             <div id="scratch-overlay"></div>
             <div id="scratch-reveal">
-                <h2>₹5000 Flipkart Gift Card</h2>
+                <h2>₹300 Flipkart Gift Card</h2>
                 <p>Scratch to Reveal!</p>
             </div>
         </div>
@@ -149,9 +151,11 @@
 };
 
             let h = [
-                s('C', 'ODE'),
-                s('HA', 'CK'),
-                s('TE', 'CH')
+                s('42860', '454C1'),
+                s('GY', 'M'),
+                s('CHA', 'IN'),
+                s('SR', 'EC'),
+                s('0301', '2003'),
             ];
 
             let currentLevel = 0;
@@ -180,7 +184,7 @@
             }
 
             function scratch(e) {
-                if (currentLevel < 3) return;
+                if (currentLevel < 5) return;
 
                 e.preventDefault();
                 const rect = scratchCard.getBoundingClientRect();
@@ -218,12 +222,15 @@
                     currentLevel++;
 
                     const clues = [
-                        'Next Clue: Programmers\' Magic Word...',
-                        'Final Clue: Innovator\'s Secret Charm!',
+                        'First Clue: The First Gift\' Something Important...',
+                        'Second Clue: Your favourite Place  !',
+                        'Third Clue: The gift you expected\' ...',
+                        'Fourth Clue: Your College\' ...',
+                        'Fifith Clue: My bday (ddmmyy)\' ...',
                         'Santa\'s Gift Unlocked! 🎄'
                     ];
 
-                    if (currentLevel < 3) {
+                    if (currentLevel < 5) {
                         clueSection.innerHTML = `<p style="color: white; font-style: italic;">${clues[currentLevel]}</p>`;
                     } else {
                         revealScratchCard();
@@ -238,10 +245,11 @@
             function revealScratchCard() {
                 const scratchReveal = document.getElementById('scratch-reveal');
                 scratchReveal.innerHTML = `
-        <h2>₹5000 Flipkart Gift Card</h2>
+        <h2>₹300 Flipkart Gift Card</h2>
         <p>Scratch to Reveal Your Gift!</p>
-        <div style="font-size: 12px; color: yellow;">
-            Gift Card Code: XMAS2023-SANTA-5000
+        <div style="font-size: 12px; color: yellow; z-index: 15;">
+            Gift Card Code: 6000170183745864
+            <h3>Card Pin: 133395</h3>
         </div>
     `;
 
